@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="21a9a77b-0ba0-46db-9e58-a2bd67d1aa23" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/wp-content/themes/twentyseventeen/functions.php" afterPath="$PROJECT_DIR$/wp-content/themes/twentyseventeen/functions.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -40,7 +40,7 @@
         <entry file="file://$PROJECT_DIR$/wp-content/themes/twentyseventeen/functions.php">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="273">
-              <caret line="661" column="16" lean-forward="true" selection-start-line="661" selection-start-column="16" selection-end-line="661" selection-end-column="16" />
+              <caret line="661" column="16" lean-forward="false" selection-start-line="661" selection-start-column="16" selection-end-line="661" selection-end-column="16" />
               <folding>
                 <element signature="e#18148#18526#0#PHP" expanded="false" />
               </folding>
@@ -307,12 +307,12 @@
       <workItem from="1492122632866" duration="1694000" />
       <workItem from="1492462731885" duration="1224000" />
       <workItem from="1492464180477" duration="605000" />
-      <workItem from="1492464945453" duration="21389000" />
+      <workItem from="1492464945453" duration="21656000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="27115000" />
+    <option name="totallyTimeSpent" value="27382000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1360" height="745" extended-state="6" />
@@ -490,7 +490,7 @@
     <entry file="file://$PROJECT_DIR$/wp-content/themes/twentyseventeen/functions.php">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="273">
-          <caret line="661" column="16" lean-forward="true" selection-start-line="661" selection-start-column="16" selection-end-line="661" selection-end-column="16" />
+          <caret line="661" column="16" lean-forward="false" selection-start-line="661" selection-start-column="16" selection-end-line="661" selection-end-column="16" />
           <folding>
             <element signature="e#18148#18526#0#PHP" expanded="false" />
           </folding>
