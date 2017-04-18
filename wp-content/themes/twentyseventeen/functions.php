@@ -749,6 +749,14 @@ function bidirectional_acf_update_value_artist_posts( $related_posts, $artist_id
 
 add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_artist_posts', 10, 3);
 
+/**
+ * @param $value - array of related posts of same post type as $post_id
+ * @param $post_id - this post'd ID that is getting edited
+ * @param $field - related posts of same post type field info
+ * @return mixed
+ *
+ * Update each post that is added to the $post_id's related posts of same post type.
+ */
 function bidirectional_acf_update_value( $value, $post_id, $field  ) {
 
     // vars
@@ -845,3 +853,4 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
 }
 
 add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value', 10, 3);
+add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value', 10, 3);
