@@ -779,7 +779,6 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
             // load existing related posts
             $value2 = get_field($field_name, $post_id2, false);
 
-
             // allow for selected posts to not contain a value
             if( empty($value2) ) {
 
