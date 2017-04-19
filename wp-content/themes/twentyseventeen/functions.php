@@ -835,3 +835,188 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
     // return
     return $value;
 }
+
+
+
+
+// When a PRODUCT is updating its list of artists, this updates those artists' artworks list
+function bidirectional_acf_update_value_artwork_has_artist( $artist_list_tmp, $product_id_tmp, $field_artist_tmp ) {
+
+    if ( !empty($GLOBALS[ 'is_updating_artist' ]) ) {
+        return $artist_list_tmp;
+    }
+
+    // Assumes posts that are not post type 'artist' are relating posts to posts
+    if (get_post_type($product_id_tmp) !== 'product') {
+        return bidirectional_acf_update_value( $artist_list_tmp, $product_id_tmp, $field_artist_tmp  );
+    }
+
+    $field_artist_name_tmp = $field_artist_tmp['name'];
+
+    $field_artworks_tmp = get_field_object('artworks');
+    $field_name_artworks_tmp = $field_artworks_tmp['name'];
+    $field_key_artworks_tmp = $field_artworks_tmp['key'];
+    $global_name = 'is_updating_artwork';
+
+    // bail early if this filter was triggered from the update_field() function called within the loop below
+    // - this prevents an infinite loop
+    if( !empty($GLOBALS[ $global_name ]) ) return $artist_list_tmp;
+
+    // set global variable to avoid infinite loop
+    // - could also remove_filter() then add_filter() again, but this is simpler
+    $GLOBALS[ $global_name ] = 1;
+
+    // loop over this post's related_artists and add this $post_id to those artist's related_posts
+    if( is_array($artist_list_tmp) ) {
+
+        // $artist_id is each related_artist's artist ID
+        foreach( $artist_list_tmp as $artist_id_tmp ) {
+
+            // load existing artist's related_posts
+            $artist_artworks_list_tmp = get_field($field_name_artworks_tmp, $artist_id_tmp, false);
+
+            // allow for selected posts to not contain a value
+            if( empty($artist_artworks_list_tmp) ) {
+
+                $artist_artworks_list_tmp = array();
+            }
+
+            // bail early if the current $product_id_tmp is already found in selected artist's list of artworks
+            if( in_array($product_id_tmp, $artist_artworks_list_tmp) ) continue;
+
+            // append the current $product_id_tmp to the selected artist's list of artworks
+            $artist_artworks_list_tmp[] = $product_id_tmp;
+
+            // update the selected artist's list of artworks (use field's key for performance)
+            update_field($field_key_artworks_tmp, $artist_artworks_list_tmp, $artist_id_tmp);
+        }
+    }
+
+    // find the related_artists' values which have been removed by looking at
+    // current post's related_artists before it has been updated
+    $old_product_artist_list_tmp = get_field($field_artist_name_tmp, $product_id_tmp, false);
+
+    if( is_array($old_product_artist_list_tmp) ) {
+
+        foreach( $old_product_artist_list_tmp as $old_product_artist_id_tmp ) {
+
+            // bail early if this value has not been removed
+            if( is_array($artist_list_tmp) && in_array($old_product_artist_id_tmp, $artist_list_tmp) ) continue;
+
+            // load this loop's artist's existing related_posts
+            $old_product_artist_artworks_list_tmp = get_field($field_name_artworks_tmp, $old_product_artist_id_tmp, false);
+
+            // bail early if no value
+            if( empty($old_product_artist_artworks_list_tmp) ) continue;
+
+            // find the position of $post_id within $value2 so we can remove it
+            $pos = array_search($product_id_tmp, $old_product_artist_artworks_list_tmp);
+
+            // remove
+            unset( $old_product_artist_artworks_list_tmp[ $pos] );
+
+            // update the un-selected post's value (use field's key for performance)
+            update_field($field_key_artworks_tmp, $old_product_artist_artworks_list_tmp, $old_product_artist_id_tmp);
+        }
+    }
+
+    // reset global varibale to allow this filter to function as per normal
+    $GLOBALS[ $global_name ] = 0;
+
+    // return
+    return $artist_list_tmp;
+}
+
+add_filter('acf/update_value/name=artist', 'bidirectional_acf_update_value_artwork_has_artist', 10, 3);
+
+
+
+// When an ARTIST is updating its list of artworks, this updates those artworks' artists list
+function bidirectional_acf_update_value_artist_has_artworks( $artworks_list, $artist_id, $field_artworks ) {
+
+    if ( !empty($GLOBALS[ 'is_updating_artwork' ]) ) {
+        return $artworks_list;
+    }
+
+    // Assumes posts that are not post type 'artist' are relating posts to posts
+    if (get_post_type($artist_id) !== 'artist') {
+        return bidirectional_acf_update_value( $artworks_list, $artist_id, $field_artworks  );
+    }
+
+    $field_artworks_name = $field_artworks['name'];
+
+    $field_artist = get_field_object('artist');
+    $field_artist_name = $field_artist['name'];
+    $field_artist_key = $field_artist['key'];
+    $global_name = 'is_updating_artist';
+
+    // bail early if this filter was triggered from the update_field() function called within the loop below
+    // - this prevents an infinite loop
+    if( !empty($GLOBALS[ $global_name ]) ) return $artworks_list;
+
+    // set global variable to avoid infinite loop
+    // - could also remove_filter() then add_filter() again, but this is simpler
+    $GLOBALS[ $global_name ] = 1;
+
+    // loop over this post's related_artists and add this $post_id to those artist's related_posts
+    if( is_array($artworks_list) ) {
+
+        // $artist_id is each related_artist's artist ID
+        foreach( $artworks_list as $artwork_id ) {
+
+            // load existing artist's related_posts
+            $artwork_artists_list = get_field($field_artist_name, $artwork_id, false);
+
+            // allow for selected posts to not contain a value
+            if( empty($artwork_artists_list) ) {
+
+                $artwork_artists_list = array();
+            }
+
+            // bail early if the current $product_id_tmp is already found in selected artist's list of artworks
+            if( in_array($artist_id, $artwork_artists_list) ) continue;
+
+            // append the current $product_id_tmp to the selected artist's list of artworks
+            $artwork_artists_list[] = $artist_id;
+
+            // update the selected artist's list of artworks (use field's key for performance)
+            update_field($field_artist_key, $artwork_artists_list, $artwork_id);
+        }
+    }
+
+    // find the related_artists' values which have been removed by looking at
+    // current post's related_artists before it has been updated
+    $old_artist_artworks_list = get_field($field_artworks_name, $artist_id, false);
+
+    if( is_array($old_artist_artworks_list) ) {
+
+        foreach( $old_artist_artworks_list as $old_artist_artwork_id ) {
+
+            // bail early if this value has not been removed
+            if( is_array($artworks_list) && in_array($old_artist_artwork_id, $artworks_list) ) continue;
+
+            // load this loop's artist's existing related_posts
+            $old_artist_artworks_artists_list = get_field($field_artist_name, $old_artist_artwork_id, false);
+
+            // bail early if no value
+            if( empty($old_artist_artworks_artists_list) ) continue;
+
+            // find the position of $post_id within $value2 so we can remove it
+            $pos = array_search($artist_id, $old_artist_artworks_artists_list);
+
+            // remove
+            unset( $old_artist_artworks_artists_list[ $pos] );
+
+            // update the un-selected post's value (use field's key for performance)
+            update_field($field_artist_key, $old_artist_artworks_artists_list, $old_artist_artwork_id);
+        }
+    }
+
+    // reset global varibale to allow this filter to function as per normal
+    $GLOBALS[ $global_name ] = 0;
+
+    // return
+    return $artworks_list;
+}
+
+add_filter('acf/update_value/name=artworks', 'bidirectional_acf_update_value_artist_has_artworks', 10, 3);
