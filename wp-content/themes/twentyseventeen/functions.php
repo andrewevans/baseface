@@ -577,7 +577,10 @@ require get_parent_theme_file_path( '/inc/icon-functions.php' );
  */
 function bidirectional_acf_update_value_post_artists( $related_artists, $post_id, $field_artist ) {
 
-    if (get_post_type($post_id) !== 'post') return $related_artists;
+    // Assumes posts that are not post type 'post' are relating artists to artists
+    if (get_post_type($post_id) !== 'post') {
+        return bidirectional_acf_update_value( $related_artists, $post_id, $field_artist  );
+    }
 
     $field_artist_name = $field_artist['name']; // meta field 'related_artists' name
 
@@ -669,7 +672,10 @@ add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_va
  */
 function bidirectional_acf_update_value_artist_posts( $related_posts, $artist_id, $field_post ) {
 
-    if (get_post_type($artist_id) !== 'artist') return $related_posts;
+    // Assumes posts that are not post type 'artist' are relating posts to posts
+    if (get_post_type($artist_id) !== 'artist') {
+        return bidirectional_acf_update_value( $related_posts, $artist_id, $field_post  );
+    }
 
     $field_post_name = $field_post['name']; // meta field 'related_artists' name
 
@@ -829,6 +835,3 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
     // return
     return $value;
 }
-
-add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value', 10, 3);
-add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value', 10, 3);
