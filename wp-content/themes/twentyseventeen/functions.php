@@ -648,49 +648,8 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
     return $value;
 }
 
-/**
- * @param $related_records_list - array of related_artists
- * @param $record_id_being_updated - this post's ID that is getting edited
- * @param $field_of_records_list - related_artists field info
- * @return mixed
- *
- * Update each post who is added to an artist's related_posts by getting each
- * post, and updating its related_artists by adding/removing this artist to that
- * post's related_artists.
- */
-// artist is edited...                               'new related_posts'      'id of artist'       'field for related_posts used for seeing old rel_posts'
-// job is to update each post in the list
-function bidirectional_acf_update_value_many_many( $related_records_list, $record_id_being_updated, $field_of_records_list ) {
-
-    $field_post_name = $field_of_records_list['name'];
-    $post_type_being_updated = get_post_type($record_id_being_updated);
-
-    if (($field_post_name === 'related_posts' && $post_type_being_updated === 'post') ||
-        ($field_post_name === 'related_artists' && $post_type_being_updated === 'artist') ||
-        ($field_post_name === 'related_products' && $post_type_being_updated === 'product')
-    ) {
-        return bidirectional_acf_update_value( $related_records_list, $record_id_being_updated, $field_of_records_list  );
-    }
-
-    switch (get_post_type($record_id_being_updated)) {
-        case 'post':
-            $field_to_update_inverse_rel = 'related_posts';
-            remove_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_many_many');
-            // this func triggered by updating posts so if it itself is a post, then use the self-relating func
-            //return bidirectional_acf_update_value( $related_records_list, $record_id_being_updated, $field_of_records_list  );
-            break;
-
-        case 'artist':
-            $field_to_update_inverse_rel = 'related_artists';
-            remove_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many');
-            break;
-
-        case 'product':
-            $field_to_update_inverse_rel = 'related_products';
-            remove_filter('acf/update_value/name=related_products', 'bidirectional_acf_update_value_many_many');
-            break;
-    }
-
+function bidirectional_acf_update_value_update($related_records_list, $record_id_being_updated, $field_of_records_list, $field_post_name, $post_type_being_updated, $field_to_update_inverse_rel)
+{
 
     $field_artist = get_field_object($field_to_update_inverse_rel);
     $field_name = $field_artist['name']; // meta field 'related_posts' name
@@ -763,7 +722,52 @@ function bidirectional_acf_update_value_many_many( $related_records_list, $recor
     $GLOBALS[ $global_name ] = 0;
 
     // return
-    return $related_records_list;
+    return $related_records_list;}
+
+/**
+ * @param $related_records_list - array of related_artists
+ * @param $record_id_being_updated - this post's ID that is getting edited
+ * @param $field_of_records_list - related_artists field info
+ * @return mixed
+ *
+ * Update each post who is added to an artist's related_posts by getting each
+ * post, and updating its related_artists by adding/removing this artist to that
+ * post's related_artists.
+ */
+// artist is edited...                               'new related_posts'      'id of artist'       'field for related_posts used for seeing old rel_posts'
+// job is to update each post in the list
+function bidirectional_acf_update_value_many_many( $related_records_list, $record_id_being_updated, $field_of_records_list ) {
+
+    $field_post_name = $field_of_records_list['name'];
+    $post_type_being_updated = get_post_type($record_id_being_updated);
+
+    if (($field_post_name === 'related_posts' && $post_type_being_updated === 'post') ||
+        ($field_post_name === 'related_artists' && $post_type_being_updated === 'artist') ||
+        ($field_post_name === 'related_products' && $post_type_being_updated === 'product')
+    ) {
+        return bidirectional_acf_update_value( $related_records_list, $record_id_being_updated, $field_of_records_list  );
+    }
+
+    switch (get_post_type($record_id_being_updated)) {
+        case 'post':
+            $field_to_update_inverse_rel = 'related_posts';
+            remove_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_many_many');
+            // this func triggered by updating posts so if it itself is a post, then use the self-relating func
+            //return bidirectional_acf_update_value( $related_records_list, $record_id_being_updated, $field_of_records_list  );
+            break;
+
+        case 'artist':
+            $field_to_update_inverse_rel = 'related_artists';
+            remove_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many');
+            break;
+
+        case 'product':
+            $field_to_update_inverse_rel = 'related_products';
+            remove_filter('acf/update_value/name=related_products', 'bidirectional_acf_update_value_many_many');
+            break;
+    }
+
+    return bidirectional_acf_update_value_update($related_records_list, $record_id_being_updated, $field_of_records_list, $field_post_name, $post_type_being_updated, $field_to_update_inverse_rel);
 }
 
 add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_many_many', 10, 3);
