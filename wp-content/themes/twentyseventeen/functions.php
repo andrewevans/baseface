@@ -666,7 +666,8 @@ function bidirectional_acf_update_value_many_many( $related_records_list, $recor
     $post_type_being_updated = get_post_type($record_id_being_updated);
 
     if (($field_post_name === 'related_posts' && $post_type_being_updated === 'post') ||
-        ($field_post_name === 'related_artists' && $post_type_being_updated === 'artist')
+        ($field_post_name === 'related_artists' && $post_type_being_updated === 'artist') ||
+        ($field_post_name === 'related_products' && $post_type_being_updated === 'product')
     ) {
         return bidirectional_acf_update_value( $related_records_list, $record_id_being_updated, $field_of_records_list  );
     }
@@ -682,6 +683,11 @@ function bidirectional_acf_update_value_many_many( $related_records_list, $recor
         case 'artist':
             $field_to_update_inverse_rel = 'related_artists';
             remove_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many');
+            break;
+
+        case 'product':
+            $field_to_update_inverse_rel = 'related_products';
+            remove_filter('acf/update_value/name=related_products', 'bidirectional_acf_update_value_many_many');
             break;
     }
 
@@ -762,3 +768,4 @@ function bidirectional_acf_update_value_many_many( $related_records_list, $recor
 
 add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_many_many', 10, 3);
 add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many', 11, 3);
+add_filter('acf/update_value/name=related_products', 'bidirectional_acf_update_value_many_many', 11, 3);
