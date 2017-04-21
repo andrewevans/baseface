@@ -579,7 +579,7 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
 
     $field_name = $field['name'];
     $field_key = $field['key'];
-    $global_name = 'is_updating_' . $field_name;
+    $global_name = 'is_updating_same_post_type_' . $field_name;
 
     // bail early if this filter was triggered from the update_field() function called within the loop below
     // - this prevents an inifinte loop
@@ -761,4 +761,4 @@ function bidirectional_acf_update_value_many_many( $related_records_list, $recor
 }
 
 add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_many_many', 10, 3);
-add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many', 10, 3);
+add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many', 11, 3);
