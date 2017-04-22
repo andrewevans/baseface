@@ -565,8 +565,6 @@ require get_parent_theme_file_path( '/inc/customizer.php' );
  */
 require get_parent_theme_file_path( '/inc/icon-functions.php' );
 
-
-
 /**
  * @param $value - array of related posts of same post type as $post_id
  * @param $post_id - this post'd ID that is getting edited
@@ -648,6 +646,17 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
     return $value;
 }
 
+/**
+ * @param $related_records_list
+ * @param $record_id_being_updated
+ * @param $field_of_records_list
+ * @param $field_post_name
+ * @param $post_type_being_updated
+ * @param $field_to_update_inverse_rel
+ * @return mixed
+ *
+ * Generic inverse relationships updates.
+ */
 function bidirectional_acf_update_value_update($related_records_list, $record_id_being_updated, $field_of_records_list, $field_post_name, $post_type_being_updated, $field_to_update_inverse_rel)
 {
 
@@ -770,6 +779,14 @@ function bidirectional_acf_update_value_many_many( $related_records_list, $recor
     return bidirectional_acf_update_value_update($related_records_list, $record_id_being_updated, $field_of_records_list, $field_post_name, $post_type_being_updated, $field_to_update_inverse_rel);
 }
 
+/**
+ * @param $related_records_list
+ * @param $record_id_being_updated
+ * @param $field_of_records_list
+ * @return mixed
+ *
+ * Update each artist/artwork that is added to the $post_id's artists/artworks.
+ */
 function bidirectional_acf_update_value_artist_artwork( $related_records_list, $record_id_being_updated, $field_of_records_list ) {
 
     // TODO The ACF API can't find the proper field data when given the 'name', but 'key' works.
