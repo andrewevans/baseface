@@ -566,190 +566,6 @@ require get_parent_theme_file_path( '/inc/customizer.php' );
 require get_parent_theme_file_path( '/inc/icon-functions.php' );
 
 /**
- * @param $related_artists - array of related_artists
- * @param $post_id - this post's ID that is getting edited
- * @param $field_artist - related_artists field info
- * @return mixed
- *
- * Update each artist who is added to a post's related_artists by getting each
- * artist, and updating its related_posts by adding/removing this post to that
- * artist's related_posts.
- */
-function bidirectional_acf_update_value_post_artists( $related_artists, $post_id, $field_artist ) {
-
-    if (get_post_type($post_id) !== 'post') return $related_artists;
-
-    $field_artist_name = $field_artist['name']; // meta field 'related_artists' name
-
-    $field_post = get_field_object('related_posts');
-    $field_name = $field_post['name']; // meta field 'related_posts' name
-    $field_key = $field_post['key'];
-    $global_name = 'is_updating_' . $field_name;
-
-    // bail early if this filter was triggered from the update_field() function called within the loop below
-    // - this prevents an inifinte loop
-    if( !empty($GLOBALS[ $global_name ]) ) return $related_artists;
-
-    // set global variable to avoid infinite loop
-    // - could also remove_filter() then add_filter() again, but this is simpler
-    $GLOBALS[ $global_name ] = 1;
-
-    // loop over this post's related_artists and add this $post_id to those artist's related_posts
-    if( is_array($related_artists) ) {
-
-        // $artist_id is each related_artist's artist ID
-        foreach( $related_artists as $artist_id ) {
-
-            // load existing artist's related_posts
-            $artist_posts = get_field($field_name, $artist_id, false);
-
-            // allow for selected posts to not contain a value
-            if( empty($artist_posts) ) {
-
-                $artist_posts = array();
-            }
-
-            // bail early if the current $post_id is already found in selected artist's $value2
-            if( in_array($post_id, $artist_posts) ) continue;
-
-            // append the current $post_id to the selected artist's 'related_posts' value
-            $artist_posts[] = $post_id;
-
-            // update the selected artist's value (use field's key for performance)
-            update_field($field_key, $artist_posts, $artist_id);
-        }
-    }
-
-    // find the related_artists' values which have been removed by looking at
-    // current post's related_artists before it has been updated
-    $old_related_artists = get_field($field_artist_name, $post_id, false);
-
-    if( is_array($old_related_artists) ) {
-
-        foreach( $old_related_artists as $old_related_artist ) {
-
-            // bail early if this value has not been removed
-            if( is_array($related_artists) && in_array($old_related_artist, $related_artists) ) continue;
-
-            // load this loop's artist's existing related_posts
-            $old_related_posts = get_field($field_name, $old_related_artist, false);
-
-            // bail early if no value
-            if( empty($old_related_posts) ) continue;
-
-            // find the position of $post_id within $value2 so we can remove it
-            $pos = array_search($post_id, $old_related_posts);
-
-            // remove
-            unset( $old_related_posts[ $pos] );
-
-            // update the un-selected post's value (use field's key for performance)
-            update_field($field_key, $old_related_posts, $old_related_artist);
-        }
-    }
-
-    // reset global varibale to allow this filter to function as per normal
-    $GLOBALS[ $global_name ] = 0;
-
-    // return
-    return $related_artists;
-}
-
-add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_post_artists', 10, 3);
-
-/**
- * @param $related_posts - array of related_artists
- * @param $artist_id - this post's ID that is getting edited
- * @param $field_post - related_artists field info
- * @return mixed
- *
- * Update each post who is added to an artist's related_posts by getting each
- * post, and updating its related_artists by adding/removing this artist to that
- * post's related_artists.
- */
-function bidirectional_acf_update_value_artist_posts( $related_posts, $artist_id, $field_post ) {
-
-    if (get_post_type($artist_id) !== 'artist') return $related_posts;
-
-    $field_post_name = $field_post['name']; // meta field 'related_artists' name
-
-    $field_artist = get_field_object('related_artists');
-    $field_name = $field_artist['name']; // meta field 'related_posts' name
-    $field_key = $field_artist['key'];
-    $global_name = 'is_updating_' . $field_name;
-
-    // bail early if this filter was triggered from the update_field() function called within the loop below
-    // - this prevents an infinite loop
-    if( !empty($GLOBALS[ $global_name ]) ) return $related_posts;
-
-    // set global variable to avoid infinite loop
-    // - could also remove_filter() then add_filter() again, but this is simpler
-    $GLOBALS[ $global_name ] = 1;
-
-    // loop over this post's related_artists and add this $post_id to those artist's related_posts
-    if( is_array($related_posts) ) {
-
-        // $artist_id is each related_artist's artist ID
-        foreach( $related_posts as $post_id ) {
-
-            // load existing artist's related_posts
-            $post_artists = get_field($field_name, $post_id, false);
-
-            // allow for selected posts to not contain a value
-            if( empty($post_artists) ) {
-
-                $post_artists = array();
-            }
-
-            // bail early if the current $post_id is already found in selected artist's $value2
-            if( in_array($artist_id, $post_artists) ) continue;
-
-            // append the current $post_id to the selected artist's 'related_posts' value
-            $post_artists[] = $artist_id;
-
-            // update the selected artist's value (use field's key for performance)
-            update_field($field_key, $post_artists, $post_id);
-        }
-    }
-
-    // find the related_artists' values which have been removed by looking at
-    // current post's related_artists before it has been updated
-    $old_related_posts = get_field($field_post_name, $artist_id, false);
-
-    if( is_array($old_related_posts) ) {
-
-        foreach( $old_related_posts as $old_related_post ) {
-
-            // bail early if this value has not been removed
-            if( is_array($related_posts) && in_array($old_related_post, $related_posts) ) continue;
-
-            // load this loop's artist's existing related_posts
-            $old_related_artist = get_field($field_name, $old_related_post, false);
-
-            // bail early if no value
-            if( empty($old_related_artist) ) continue;
-
-            // find the position of $post_id within $value2 so we can remove it
-            $pos = array_search($artist_id, $old_related_artist);
-
-            // remove
-            unset( $old_related_artist[ $pos] );
-
-            // update the un-selected post's value (use field's key for performance)
-            update_field($field_key, $old_related_artist, $old_related_post);
-        }
-    }
-
-    // reset global varibale to allow this filter to function as per normal
-    $GLOBALS[ $global_name ] = 0;
-
-    // return
-    return $related_posts;
-}
-
-add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_artist_posts', 10, 3);
-
-/**
  * @param $value - array of related posts of same post type as $post_id
  * @param $post_id - this post'd ID that is getting edited
  * @param $field - related posts of same post type field info
@@ -761,7 +577,7 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
 
     $field_name = $field['name'];
     $field_key = $field['key'];
-    $global_name = 'is_updating_' . $field_name;
+    $global_name = 'is_updating_same_post_type_' . $field_name;
 
     // bail early if this filter was triggered from the update_field() function called within the loop below
     // - this prevents an inifinte loop
@@ -789,7 +605,7 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
             if( in_array($post_id, $value2) ) continue;
 
             // append the current $post_id to the selected post's 'related_posts' value
-            $value2[] = $post_id;
+            $value2[] = (string) $post_id;
 
             // update the selected post's value (use field's key for performance)
             update_field($field_key, $value2, $post_id2);
@@ -830,5 +646,243 @@ function bidirectional_acf_update_value( $value, $post_id, $field  ) {
     return $value;
 }
 
-add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value', 10, 3);
-add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value', 10, 3);
+/**
+ * @param $related_records_list
+ * @param $record_id_being_updated
+ * @param $field_of_records_list
+ * @param $field_post_name
+ * @param $post_type_being_updated
+ * @param $field_to_update_inverse_rel
+ * @return mixed
+ *
+ * Generic inverse relationships updates.
+ */
+function bidirectional_acf_update_value_update($related_records_list, $record_id_being_updated, $field_of_records_list, $field_post_name, $post_type_being_updated, $field_to_update_inverse_rel)
+{
+
+    $field_artist = get_field_object($field_to_update_inverse_rel);
+    $field_name = $field_artist['name']; // meta field 'related_posts' name
+    $field_key = $field_artist['key'];
+    $global_name = 'is_updating_' . $field_name;
+
+    // bail early if this filter was triggered from the update_field() function called within the loop below
+    // - this prevents an infinite loop
+    if( !empty($GLOBALS[ $global_name ]) ) return $related_records_list;
+
+    // set global variable to avoid infinite loop
+    // - could also remove_filter() then add_filter() again, but this is simpler
+    $GLOBALS[ $global_name ] = 1;
+
+    // loop over this post's related_artists and add this $post_id to those artist's related_posts
+    if( is_array($related_records_list) ) {
+
+        // $artist_id is each related_artist's artist ID
+        foreach( $related_records_list as $post_id ) {
+
+            // load existing artist's related_posts
+            $post_artists = get_field($field_name, $post_id, false);
+
+            // allow for selected posts to not contain a value
+            if( empty($post_artists) ) {
+
+                $post_artists = array();
+            }
+
+            // bail early if the current $post_id is already found in selected artist's $value2
+            if( in_array($record_id_being_updated, $post_artists) ) continue;
+
+            // append the current $post_id to the selected artist's 'related_posts' value
+            $post_artists[] = $record_id_being_updated;
+
+            // update the selected artist's value (use field's key for performance)
+            update_field($field_key, $post_artists, $post_id);
+        }
+    }
+
+    // find the related_artists' values which have been removed by looking at
+    // current post's related_artists before it has been updated
+    $old_related_posts = get_field($field_post_name, $record_id_being_updated, false);
+
+    if( is_array($old_related_posts) ) {
+
+        foreach( $old_related_posts as $old_related_post ) {
+
+            // bail early if this value has not been removed
+            if( is_array($related_records_list) && in_array($old_related_post, $related_records_list) ) continue;
+
+            // load this loop's artist's existing related_posts
+            $old_related_artist = get_field($field_name, $old_related_post, false);
+
+            // bail early if no value
+            if( empty($old_related_artist) ) continue;
+
+            // find the position of $post_id within $value2 so we can remove it
+            $pos = array_search($record_id_being_updated, $old_related_artist);
+
+            // remove
+            unset( $old_related_artist[ $pos] );
+
+            // update the un-selected post's value (use field's key for performance)
+            update_field($field_key, $old_related_artist, $old_related_post);
+        }
+    }
+
+    // reset global varibale to allow this filter to function as per normal
+    $GLOBALS[ $global_name ] = 0;
+
+    // return
+    return $related_records_list;}
+
+/**
+ * @param $related_records_list - array of related_artists
+ * @param $record_id_being_updated - this post's ID that is getting edited
+ * @param $field_of_records_list - related_artists field info
+ * @return mixed
+ *
+ * Update each post who is added to an artist's related_posts by getting each
+ * post, and updating its related_artists by adding/removing this artist to that
+ * post's related_artists.
+ */
+// artist is edited...                               'new related_posts'      'id of artist'       'field for related_posts used for seeing old rel_posts'
+// job is to update each post in the list
+function bidirectional_acf_update_value_many_many( $related_records_list, $record_id_being_updated, $field_of_records_list ) {
+
+    $field_post_name = $field_of_records_list['name'];
+    $post_type_being_updated = get_post_type($record_id_being_updated);
+
+    if (($field_post_name === 'related_posts' && $post_type_being_updated === 'post') ||
+        ($field_post_name === 'related_artists' && $post_type_being_updated === 'artist') ||
+        ($field_post_name === 'related_products' && $post_type_being_updated === 'product')
+    ) {
+        return bidirectional_acf_update_value( $related_records_list, $record_id_being_updated, $field_of_records_list  );
+    }
+
+    switch (get_post_type($record_id_being_updated)) {
+        case 'post':
+            $field_to_update_inverse_rel = 'related_posts';
+            remove_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_many_many');
+            // this func triggered by updating posts so if it itself is a post, then use the self-relating func
+            //return bidirectional_acf_update_value( $related_records_list, $record_id_being_updated, $field_of_records_list  );
+            break;
+
+        case 'artist':
+            $field_to_update_inverse_rel = 'related_artists';
+            remove_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many');
+            break;
+
+        case 'product':
+            $field_to_update_inverse_rel = 'related_products';
+            remove_filter('acf/update_value/name=related_products', 'bidirectional_acf_update_value_many_many');
+            break;
+    }
+
+    return bidirectional_acf_update_value_update($related_records_list, $record_id_being_updated, $field_of_records_list, $field_post_name, $post_type_being_updated, $field_to_update_inverse_rel);
+}
+
+/**
+ * @param $related_records_list
+ * @param $record_id_being_updated
+ * @param $field_of_records_list
+ * @return mixed
+ *
+ * Update each artist/artwork that is added to the $post_id's artists/artworks.
+ */
+function bidirectional_acf_update_value_artist_artwork( $related_records_list, $record_id_being_updated, $field_of_records_list ) {
+
+    // TODO The ACF API can't find the proper field data when given the 'name', but 'key' works.
+    $field_post_name = $field_of_records_list['key'];
+    $post_type_being_updated = get_post_type($record_id_being_updated);
+
+    // Artists don't have artists, and products don't have products.
+
+    switch (get_post_type($record_id_being_updated)) {
+        case 'artist':
+            $field_to_update_inverse_rel = 'real_artists';
+            remove_filter('acf/update_value/name=real_artists', 'bidirectional_acf_update_value_artist_artwork');
+            break;
+
+        case 'product':
+            $field_to_update_inverse_rel = 'real_artworks';
+            remove_filter('acf/update_value/name=real_artworks', 'bidirectional_acf_update_value_artist_artwork');
+            break;
+    }
+
+    $field_artist = get_field_object($field_to_update_inverse_rel);
+    $field_name = $field_artist['name']; // meta field 'related_posts' name
+    $field_key = $field_artist['key'];
+    $global_name = 'is_updating_' . $field_name;
+
+    // bail early if this filter was triggered from the update_field() function called within the loop below
+    // - this prevents an infinite loop
+    if( !empty($GLOBALS[ $global_name ]) ) return $related_records_list;
+
+    // set global variable to avoid infinite loop
+    // - could also remove_filter() then add_filter() again, but this is simpler
+    $GLOBALS[ $global_name ] = 1;
+
+    // loop over this post's related_artists and add this $post_id to those artist's related_posts
+    if( is_array($related_records_list) ) {
+
+        // $artist_id is each related_artist's artist ID
+        foreach( $related_records_list as $post_id ) {
+
+            // load existing artist's related_posts
+            $post_artists = get_field($field_name, $post_id, false);
+
+            // allow for selected posts to not contain a value
+            if( empty($post_artists) ) {
+
+                $post_artists = array();
+            }
+
+            // bail early if the current $post_id is already found in selected artist's $value2
+            if( in_array($record_id_being_updated, $post_artists) ) continue;
+
+            // append the current $post_id to the selected artist's 'related_posts' value
+            $post_artists[] = (string) $record_id_being_updated;
+
+            // update the selected artist's value (use field's key for performance)
+            update_field($field_key, $post_artists, $post_id);
+        }
+    }
+
+    // find the related_artists' values which have been removed by looking at
+    // current post's related_artists before it has been updated
+    $old_related_posts = get_field($field_post_name, $record_id_being_updated, false);
+
+    if( is_array($old_related_posts) ) {
+
+        foreach( $old_related_posts as $old_related_post ) {
+
+            // bail early if this value has not been removed
+            if( is_array($related_records_list) && in_array($old_related_post, $related_records_list) ) continue;
+
+            // load this loop's artist's existing related_posts
+            $old_related_artist = get_field($field_name, $old_related_post, false);
+
+            // bail early if no value
+            if( empty($old_related_artist) ) continue;
+
+            // find the position of $post_id within $value2 so we can remove it
+            $pos = array_search($record_id_being_updated, $old_related_artist);
+
+            // remove
+            unset( $old_related_artist[ $pos] );
+
+            // update the un-selected post's value (use field's key for performance)
+            update_field($field_key, $old_related_artist, $old_related_post);
+        }
+    }
+
+    // reset global varibale to allow this filter to function as per normal
+    $GLOBALS[ $global_name ] = 0;
+
+    // return
+    return $related_records_list;
+}
+
+add_filter('acf/update_value/name=real_artists', 'bidirectional_acf_update_value_artist_artwork', 8, 3);
+add_filter('acf/update_value/name=real_artworks', 'bidirectional_acf_update_value_artist_artwork', 9, 3);
+add_filter('acf/update_value/name=related_posts', 'bidirectional_acf_update_value_many_many', 10, 3);
+add_filter('acf/update_value/name=related_artists', 'bidirectional_acf_update_value_many_many', 11, 3);
+add_filter('acf/update_value/name=related_products', 'bidirectional_acf_update_value_many_many', 12, 3);
