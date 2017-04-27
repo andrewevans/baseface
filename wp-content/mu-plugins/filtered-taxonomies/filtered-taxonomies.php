@@ -1,42 +1,40 @@
 <?php
 add_action( 'admin_enqueue_scripts', 'enqueue_scripts' );
 
-function enqueue_scripts($hook) {
-    if( 'post.php' != $hook ) {
-        // Only applies to post editing
-        return;
+function enqueue_scripts() {
+    $screen = get_current_screen();
+
+    if ($screen->post_type !== 'product') {
+
+        return; // Only applies to product editing
     }
 
     wp_enqueue_script( 'ajax-script', plugins_url( '/js/artist-mediums.js', __FILE__ ), array('jquery') );
     wp_enqueue_style('ajax-css', plugins_url('/css/artist-mediums.css', __FILE__ ));
-
-    // in JavaScript, object properties are accessed as ajax_object.ajax_url, ajax_object.we_value
-    wp_localize_script( 'ajax-script', 'ajax_object',
-        array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'we_value' => 1234 ) );
 }
 
+/**
+ * Returns term IDs, that are associated with the artist chosen, in JSON format
+ * to AJAX requests.
+ */
 function change_artist() {
     global $wpdb;
 
-    $artist_id = $_POST['artist_id'];
+    $artist_id = $_POST['artist_id']; // Artist ID
 
-    $args = array(
-        'post_type' => 'artist',
-        'p' => $artist_id,
-    );
+    $args = ['fields' => 'tt_ids']; // Only return the IDs
 
-    $terms = wp_get_post_terms( $artist_id, 'mediums', $args );
+    // Get all the term IDs that are associated with this artist
+    $terms_ids = wp_get_post_terms( $artist_id, 'mediums', $args );
 
-    $terms_ids = array_map(function($term) {
-        return $term->term_id;
-    }, $terms);
+    // TODO Needs to return an updated terms section that is formatted by WP
 
-    wp_send_json($terms_ids);
+    wp_send_json($terms_ids); // return term IDs in JSON format to AJAX request
 
     wp_die();
 }
 
 if ( is_admin() ) {
+    // TODO Action needs to be exact string as frontend.
     add_action( 'wp_ajax_change_artist', 'change_artist' );
 }
-
