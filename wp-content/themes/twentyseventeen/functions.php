@@ -573,3 +573,43 @@ function custom_add_to_cart_redirect() {
     return get_site_url() . '/cart';
 }
 add_filter( 'woocommerce_add_to_cart_redirect', 'custom_add_to_cart_redirect' );
+
+/*-------------------------------------------------------------------------------
+	Custom Columns
+-------------------------------------------------------------------------------*/
+
+function my_product_columns($columns)
+{
+    $columns = array(
+        'cb'	 	=> '<input type="checkbox" />',
+        'title' 	=> 'Title',
+        'single_artist' 	=> 'Artist',
+        'medium' 	=> 'Medium',
+        'date'		=>	'Date',
+        'thumbnail'	=>	'Thumbnail',
+    );
+
+    return $columns;
+}
+
+function my_custom_columns($column)
+{
+    global $post;
+    if($column == 'thumbnail')
+    {
+        echo get_the_post_thumbnail($post->ID,  [200, 200]);
+    }
+    elseif($column == 'single_artist')
+    {
+        $artist = get_field( "single_artist");
+        echo ($artist ? $artist->post_title : '');
+    }
+    elseif($column == 'medium')
+    {
+        $medium = get_term((INT) get_field( "medium"));
+        echo $medium->name;
+    }
+}
+
+add_action("manage_posts_custom_column", "my_custom_columns");
+add_filter("manage_edit-product_columns", "my_product_columns");
