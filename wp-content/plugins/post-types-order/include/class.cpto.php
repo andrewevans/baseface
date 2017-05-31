@@ -407,7 +407,7 @@
                     
                     $edit_start_at      =   $paged  *   $objects_per_page   -   $objects_per_page;
                     $index              =   0;
-                    for($i  =   $edit_start_at; $i  <   ($edit_start_at +   $objects_per_page); $i++)
+                    for($i  =   0; isset($objects_ids[$i]); $i++)
                         {
                             if(!isset($objects_ids[$i]))
                                 break;
