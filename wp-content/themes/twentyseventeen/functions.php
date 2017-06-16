@@ -587,6 +587,7 @@ function my_product_columns($columns)
         'medium' 	=> 'Medium',
         'date'		=>	'Date',
         'thumbnail'	=>	'Thumbnail',
+        'sku'	=>	'SKU',
     );
 
     return $columns;
