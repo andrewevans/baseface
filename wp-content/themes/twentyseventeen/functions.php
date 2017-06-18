@@ -603,7 +603,7 @@ function my_custom_columns($column)
     elseif($column == 'single_artist')
     {
         $artist = get_field( "single_artist");
-        echo ($artist ? $artist->post_title : '');
+        echo ($artist ? $artist->last_name . ', ' . $artist->first_name : '');
     }
     elseif($column == 'medium')
     {

@@ -10,27 +10,24 @@ Author URI: http://en.bainternet.info
 function get_artists()
 {
     $args = array(
-        'posts_per_page'   => 5,
-        'offset'           => 0,
-        'category'         => '',
-        'category_name'    => '',
-        'orderby'          => 'date',
-        'order'            => 'DESC',
-        'include'          => '',
-        'exclude'          => '',
-        'meta_key'         => '',
-        'meta_value'       => '',
         'post_type'        => 'artist',
-        'post_mime_type'   => '',
-        'post_parent'      => '',
-        'author'	   => '',
-        'author_name'	   => '',
+        'posts_per_page'	=> -1,
+        'offset'    => 1,
+        'meta_key'			=> 'last_name',
+        'orderby'			=> 'meta_value',
+        'order'            => 'ASC',
         'post_status'      => 'publish',
-        'suppress_filters' => true
     );
 
     // TODO This does not return any posts on the admin filtered products page
     $artists = get_posts( $args );
+
+    // Include meta data with each artist
+    $artists = array_map(function($artist) {
+        $artist->meta = get_post_meta($artist->ID);
+
+        return $artist;
+    }, $artists);
 
     return $artists;
 }
@@ -61,7 +58,7 @@ function wpse45436_admin_posts_filter_restrict_manage_posts(){
         $artists = get_artists();
 
         foreach ($artists as $artist) {
-            $values[$artist->post_title] = $artist->ID;
+            $values[$artist->meta['last_name'][0] . ', ' . $artist->meta['first_name'][0]] = $artist->ID;
         }
 
         ?>
