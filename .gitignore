@@ -11,6 +11,7 @@ wp-content/blogs.dir/
 wp-content/cache/
 wp-content/upgrade/
 wp-content/uploads/
+images/
 wp-content/wp-cache-config.php
 wp-content/plugins/hello.php
 
