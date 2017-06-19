@@ -253,10 +253,12 @@
                     if (isset($_GET['orderby']) && $_GET['orderby'] !=  'menu_order')
                         return false;
                         
-                    //return if post status filtering
-                    if (isset($_GET['post_status']))
-                        return false;
-                        
+                    //do NOT return if post status filtering
+                    /*
+                     * The check for isset($_GET['post_status'] has been removed
+                     * so that ordering also happens on filtered pages.
+                     */
+
                     //return if post author filtering
                     if (isset($_GET['author']))
                         return false;
@@ -407,6 +409,17 @@
                     
                     $edit_start_at      =   $paged  *   $objects_per_page   -   $objects_per_page;
                     $index              =   0;
+
+                    $current_objects_menu_orders = [];
+
+                    for($i  =   0; isset($data['post'][$i]); $i++)
+                        {
+                            $post = get_post($data['post'][$i]);
+                            $current_objects_menu_orders[] = (int)$post->menu_order;
+                        }
+
+                    sort($current_objects_menu_orders);
+
                     for($i  =   0; isset($objects_ids[$i]); $i++)
                         {
                             if(!isset($objects_ids[$i]))
@@ -417,12 +430,12 @@
                         }
                     
                     //update the menu_order within database
-                    foreach( $objects_ids as $menu_order   =>  $id ) 
+                    foreach( $data['post'] as $menu_order   =>  $id )
                         {
                             $data = array(
-                                            'menu_order' => $menu_order
+                                            'menu_order' => $current_objects_menu_orders[$menu_order]
                                             );
-                            $data = apply_filters('post-types-order_save-ajax-order', $data, $menu_order, $id);
+                            $data = apply_filters('post-types-order_save-ajax-order', $data, $current_objects_menu_orders[$menu_order], $id);
                             
                             $wpdb->update( $wpdb->posts, $data, array('ID' => $id) );
                         }
