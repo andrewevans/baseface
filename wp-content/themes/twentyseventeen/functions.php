@@ -612,8 +612,8 @@ function my_custom_columns($column)
     }
 }
 
-add_action("manage_posts_custom_column", "my_custom_columns");
-add_filter("manage_edit-product_columns", "my_product_columns");
+//add_action("manage_posts_custom_column", "my_custom_columns");
+//add_filter("manage_edit-product_columns", "my_product_columns");
 
 add_filter('tiny_mce_before_init','configure_tinymce');
 
