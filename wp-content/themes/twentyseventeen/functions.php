@@ -615,7 +615,31 @@ function my_custom_columns($column)
 //add_action("manage_posts_custom_column", "my_custom_columns");
 //add_filter("manage_edit-product_columns", "my_product_columns");
 
-add_filter('tiny_mce_before_init','configure_tinymce');
+function ST4_columns_head($defaults) {
+
+    array_splice($defaults, 2, 0, array('ID' => 'ID'));
+
+    /* ADD ANOTHER COLUMN (OPTIONAL) */
+    // $defaults['second_column'] = 'Second Column';
+
+    /* REMOVE DEFAULT CATEGORY COLUMN (OPTIONAL) */
+    // unset($defaults['categories']);
+
+    /* TO GET DEFAULTS COLUMN NAMES: */
+    // print_r($defaults);
+
+    return $defaults;
+}
+
+// TAXONOMIES: CATEGORIES (POSTS AND LINKS), TAGS AND CUSTOM TAXONOMIES
+function ST4_columns_content_taxonomy($c, $column_name, $term_id) {
+    if ($column_name == 'ID') {
+        echo $term_id;
+    }
+}
+
+add_filter('manage_edit-mediums_columns', 'ST4_columns_head');
+add_filter('manage_mediums_custom_column', 'ST4_columns_content_taxonomy', 10, 3);
 
 /**
  * Customize TinyMCE's configuration
