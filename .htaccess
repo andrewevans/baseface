@@ -8,10 +8,15 @@
     RewriteCond %{HTTPS} off
     RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # Handle Front Controller...
-    RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule ^ index.php [L]
+# BEGIN WordPress
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{HTTP_HOST} !^images\.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+# END WordPress
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
@@ -29,3 +34,4 @@
   # JavaScript
     ExpiresByType application/javascript                "access plus 1 year"
 </IfModule>
+
