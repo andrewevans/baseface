@@ -28,4 +28,3 @@ function remove__and_add_plugin_image_sizes() {
 
 add_action('init', 'remove__and_add_plugin_image_sizes');
 ?>
-
