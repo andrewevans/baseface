@@ -424,11 +424,11 @@
                         {
                             if(!isset($objects_ids[$i]))
                                 break;
-                             
-if (isset($data['post'][$index])) {
-   
-                            $objects_ids[$i]    =   (int)$data['post'][$index];
-}
+
+                            if (isset($data['post'][$index])) {
+                                $objects_ids[$i]    =   (int)$data['post'][$index];
+                            }
+
                             $index++;
                         }
                     
