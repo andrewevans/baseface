@@ -585,6 +585,7 @@ function my_product_columns($columns)
         'title' 	=> 'Title',
         'single_artist' 	=> 'Artist',
         'medium' 	=> 'Medium',
+        'availability'  => 'Avail',
         'date'		=>	'Date',
         'thumbnail'	=>	'Thumbnail',
         'sku'	=>	'SKU',
@@ -598,22 +599,27 @@ function my_custom_columns($column)
     global $post;
     if($column == 'thumbnail')
     {
-        echo get_the_post_thumbnail($post->ID,  [200, 200]);
+        echo get_the_post_thumbnail($post->ID,  [150, 150]);
     }
     elseif($column == 'single_artist')
     {
         $artist = get_field( "single_artist");
-        echo ($artist ? $artist->last_name . ', ' . $artist->first_name : '');
+        echo ($artist && isset($artist->post_title) ? $artist->last_name . ', ' . $artist->first_name : '');
+    }
+    elseif($column == 'availability')
+    {
+        $avail = get_field( "availability");
+        print_r($avail);
     }
     elseif($column == 'medium')
     {
         $medium = get_term((INT) get_field( "medium"));
-        echo $medium->name;
+        echo ($medium && isset($medium->name) ? $medium->name : 'NO MEDIUM');
     }
 }
 
-//add_action("manage_posts_custom_column", "my_custom_columns");
-//add_filter("manage_edit-product_columns", "my_product_columns");
+add_action("manage_posts_custom_column", "my_custom_columns");
+add_filter("manage_edit-product_columns", "my_product_columns");
 
 function ST4_columns_head($defaults) {
 
