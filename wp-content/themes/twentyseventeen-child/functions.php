@@ -27,4 +27,81 @@ function remove__and_add_plugin_image_sizes() {
 }
 
 add_action('init', 'remove__and_add_plugin_image_sizes');
+
+add_filter( 'gform_form_post_get_meta', 'populate_artwork_data' );
+function populate_artwork_data( $form ) {
+
+    $args = array(
+        'posts_per_page'   => 5,
+        'offset'           => 0,
+        'category'         => '',
+        'category_name'    => '',
+        'orderby'          => 'date',
+        'order'            => 'DESC',
+        'include'          => '',
+        'exclude'          => '',
+        'meta_key'         => '_sku',
+        'meta_value'       => $_GET['artwork_sku'],
+        'post_type'        => 'product',
+        'post_mime_type'   => '',
+        'post_parent'      => '',
+        'author'	   => '',
+        'author_name'	   => '',
+        'post_status'      => 'publish',
+        'suppress_filters' => true
+    );
+    $posts = get_posts( $args );
+
+    //Creating drop down item array.
+    $items = array();
+
+    //Adding initial blank value.
+    $items[] = array( 'text' => '', "value" => '' );
+
+    //Adding post titles to the items array
+    foreach ( $posts as $post )
+        $items[] = array( 'value' => $post->post_title, 'text' => $post->post_title );
+
+    //TODO: These IDs need to be populated by a config
+    $forms = [];
+    $forms['bestoffer']['id'] = 3;
+    $forms['bestoffer']['artwork_title'] = 10;
+    $forms['bestoffer']['artwork_artist'] = 11;
+
+    $forms['contact']['id'] = 1;
+    $forms['contact']['artwork_title'] = 6;
+    $forms['contact']['artwork_artist'] = 7;
+
+    foreach ( $form['fields'] as &$field ) {
+
+        switch ($form['id']) {
+            case $forms['bestoffer']['id']:
+                if ( $field->id == $forms['bestoffer']['artwork_title'] ) {
+                    $field->defaultValue = $post->post_title;
+                }
+
+                if ( $field->id == $forms['bestoffer']['artwork_artist'] ) {
+                    $single_artist = get_post(get_post_meta( $post->ID, 'single_artist', true ));
+                    $field->defaultValue = $single_artist->post_title;
+                }
+                break;
+
+            case $forms['contact']['id']:
+                if ( $field->id == $forms['contact']['artwork_title'] ) {
+                    $field->defaultValue = $post->post_title;
+                }
+
+                if ( $field->id == $forms['contact']['artwork_artist'] ) {
+                    $single_artist = get_post(get_post_meta( $post->ID, 'single_artist', true ));
+                    $field->defaultValue = $single_artist->post_title;
+                }
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    return $form;
+}
 ?>
