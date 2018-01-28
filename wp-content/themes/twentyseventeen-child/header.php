@@ -24,6 +24,25 @@
 </head>
 
 <body <?php body_class(); ?>>
+<!-- Start of StatCounter Code for Default Guide -->
+<script type="text/javascript">
+  var sc_project=3759295;
+  var sc_invisible=1;
+  var sc_security="ab715bd5";
+  var sc_https=1;
+  var scJsHost = (("https:" == document.location.protocol) ?
+    "https://secure." : "http://www.");
+</script>
+<script type="text/javascript"
+        src="https://www.statcounter.com/counter/counter.js"
+        async></script>
+<noscript><div class="statcounter"><a title="Web Analytics"
+                                      href="http://statcounter.com/" target="_blank"><img
+                    class="statcounter"
+                    src="//c.statcounter.com/3759295/0/ab715bd5/1/" alt="Web
+Analytics"></a></div></noscript>
+<!-- End of StatCounter Code for Default Guide -->
+
 <div id="page" class="site">
 	<a class="skip-link screen-reader-text" href="#content"><?php _e( 'Skip to content', 'twentyseventeen' ); ?></a>
 
