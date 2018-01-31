@@ -104,4 +104,41 @@ function populate_artwork_data( $form ) {
 
     return $form;
 }
+
+/**
+ * Best offers that are below half of the regular price are invalid.
+ */
+add_filter( 'gform_field_validation_3_7', 'bestoffer_validation', 10, 4 );
+function bestoffer_validation( $result, $value, $form, $field ) {
+
+    $args = array(
+        'posts_per_page'   => 5,
+        'offset'           => 0,
+        'category'         => '',
+        'category_name'    => '',
+        'orderby'          => 'date',
+        'order'            => 'DESC',
+        'include'          => '',
+        'exclude'          => '',
+        'meta_key'         => '_sku',
+        'meta_value'       => $_GET['artwork_sku'],
+        'post_type'        => 'product',
+        'post_mime_type'   => '',
+        'post_parent'      => '',
+        'author'	   => '',
+        'author_name'	   => '',
+        'post_status'      => 'publish',
+        'suppress_filters' => true
+    );
+    $posts = get_posts( $args );
+
+    $price = get_post_meta( $posts[0]->ID, '_regular_price', true);
+
+    if ( $result['is_valid'] && intval( $value ) < ($price/2) ) {
+        $result['is_valid'] = false;
+        $result['message'] = 'Your offer is too low. Please enter another best offer.';
+    }
+
+    return $result;
+}
 ?>
