@@ -132,9 +132,9 @@ function bestoffer_validation( $result, $value, $form, $field ) {
     );
     $posts = get_posts( $args );
 
-    $price = get_post_meta( $posts[0]->ID, '_regular_price', true);
+    $price = (int) get_post_meta( $posts[0]->ID, '_regular_price', true);
 
-    if ( $result['is_valid'] && intval( $value ) < ($price/2) ) {
+    if ( $price !== '' && $price > 0 && $result['is_valid'] && intval( $value ) < ($price / 2) ) {
         $result['is_valid'] = false;
         $result['message'] = 'Your offer is too low. Please enter another best offer.';
     }
