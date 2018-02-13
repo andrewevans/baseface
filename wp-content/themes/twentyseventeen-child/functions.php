@@ -31,6 +31,9 @@ add_action('init', 'remove__and_add_plugin_image_sizes');
 add_filter( 'gform_form_post_get_meta', 'populate_artwork_data' );
 function populate_artwork_data( $form ) {
 
+if (! isset($_GET['artwork_sku']) || $_GET['artwork_sku'] == '') {
+return $form;
+}
     $args = array(
         'posts_per_page'   => 5,
         'offset'           => 0,
@@ -69,8 +72,8 @@ function populate_artwork_data( $form ) {
     $forms['bestoffer']['artwork_artist'] = 11;
 
     $forms['contact']['id'] = 1;
-    $forms['contact']['artwork_title'] = 6;
-    $forms['contact']['artwork_artist'] = 7;
+    $forms['contact']['artwork_title'] = 7;
+    $forms['contact']['artwork_artist'] = 8;
 
     foreach ( $form['fields'] as &$field ) {
 
@@ -108,7 +111,7 @@ function populate_artwork_data( $form ) {
 /**
  * Best offers that are below half of the regular price are invalid.
  */
-add_filter( 'gform_field_validation_3_7', 'bestoffer_validation', 10, 4 );
+add_filter( 'gform_field_validation_3_13', 'bestoffer_validation', 10, 4 );
 function bestoffer_validation( $result, $value, $form, $field ) {
 
     $args = array(
