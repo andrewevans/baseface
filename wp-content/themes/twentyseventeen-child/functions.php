@@ -28,6 +28,11 @@ function remove__and_add_plugin_image_sizes() {
 
 add_action('init', 'remove__and_add_plugin_image_sizes');
 
+add_filter( 'gform_field_value_ad_path', 'populate_ad_path' );
+function populate_ad_path( $value ) {
+    return $_COOKIE['ad_path'];
+}
+
 add_filter( 'gform_form_post_get_meta', 'populate_artwork_data' );
 function populate_artwork_data( $form ) {
 
@@ -143,10 +148,5 @@ function bestoffer_validation( $result, $value, $form, $field ) {
     }
 
     return $result;
-}
-
-add_filter( 'gform_field_value_ad_path', 'populate_ad_path' );
-function populate_ad_path( $value ) {
-    return $_COOKIE['ad_path'];
 }
 ?>
