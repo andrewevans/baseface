@@ -144,4 +144,9 @@ function bestoffer_validation( $result, $value, $form, $field ) {
 
     return $result;
 }
+
+add_filter( 'gform_field_value_ad_path', 'populate_ad_path' );
+function populate_ad_path( $value ) {
+    return $_COOKIE['ad_path'];
+}
 ?>
