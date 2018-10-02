@@ -1,4 +1,18 @@
 <?php
+add_filter('admin_init', 'my_general_settings_register_fields');
+
+function my_general_settings_register_fields()
+{
+    register_setting('general', 'my_homepage_list', 'esc_attr');
+    add_settings_field('my_homepage_list', '<label for="my_homepage_list">'.__('Homepage SKUs' , 'my_homepage_list' ).'</label>' , 'my_general_settings_fields_html', 'general');
+}
+
+function my_general_settings_fields_html()
+{
+    $value = preg_replace('/\s+/', '', get_option( 'my_homepage_list', '' ));
+    echo '<input type="text" id="my_homepage_list" name="my_homepage_list" value="' . $value . '" class="regular-text code" style="width: 90%" />';
+}
+
 function my_theme_enqueue_styles() {
 
     $parent_style = 'twentyseventeen-style'; // This is 'twentyseventeen-style' for the Twenty Seventeen theme.
