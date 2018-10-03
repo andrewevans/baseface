@@ -1,13 +1,45 @@
 <?php
+function check_values($post_ID, $post_after, $post_before){
+
+    $sku = get_post_meta( $post_ID, '_sku', true);
+    $reset_url = get_option('my_external_site') . "/artists/ARTIST_SLUG/MEDIUM_SLUG/ARTWORK_SLUG/id/" . $sku . "?reset=true";
+
+    // create curl resource
+    $ch = curl_init();
+
+    // set url
+    curl_setopt($ch, CURLOPT_URL, $reset_url);
+
+    //return the transfer as a string
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+    // $output contains the output string
+    $output = curl_exec($ch);
+
+    // close curl resource to free up system resources
+    curl_close($ch);
+}
+
+add_action( 'post_updated', 'check_values', 10, 3 ); //don't forget the last argument to allow all three arguments of the function
+
 add_filter('admin_init', 'my_general_settings_register_fields');
 
 function my_general_settings_register_fields()
 {
+    register_setting('general', 'my_external_site', 'esc_attr');
+    add_settings_field('my_external_site', '<label for="my_external_site">'.__('External website' , 'my_external_site' ).'</label>' , 'my_general_settings_fields_html_my_external_site', 'general');
+
     register_setting('general', 'my_homepage_list', 'esc_attr');
-    add_settings_field('my_homepage_list', '<label for="my_homepage_list">'.__('Homepage SKUs' , 'my_homepage_list' ).'</label>' , 'my_general_settings_fields_html', 'general');
+    add_settings_field('my_homepage_list', '<label for="my_homepage_list">'.__('Homepage SKUs' , 'my_homepage_list' ).'</label>' , 'my_general_settings_fields_html_my_homepage_list', 'general');
 }
 
-function my_general_settings_fields_html()
+function my_general_settings_fields_html_my_external_site()
+{
+    $value = preg_replace('/\s+/', '', get_option( 'my_external_site', '' ));
+    echo '<input type="text" id="my_external_site" name="my_external_site" value="' . $value . '" class="regular-text code" style="width: 90%" />';
+}
+
+function my_general_settings_fields_html_my_homepage_list()
 {
     $value = preg_replace('/\s+/', '', get_option( 'my_homepage_list', '' ));
     echo '<input type="text" id="my_homepage_list" name="my_homepage_list" value="' . $value . '" class="regular-text code" style="width: 90%" />';
