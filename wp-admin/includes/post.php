@@ -1346,7 +1346,7 @@ function get_sample_permalink_html( $id, $new_title = null, $new_slug = null ) {
 		$post_name_html = '<span id="editable-post-name">' . esc_html( $post_name_abridged ) . '</span>';
 		$display_link = str_replace( array( '%pagename%', '%postname%' ), $post_name_html, esc_html( urldecode( $permalink ) ) );
 
-		$return = '<strong>' . __( 'Permalink:' ) . "</strong>\n";
+		$return = '<a href="' . get_option('my_external_site') . '/id/' . $post->ID . '" target="_blank">(View Artwork)</a> <strong>' . __( 'Permalink:' ) . "</strong>\n";
 		$return .= '<span id="sample-permalink"><a href="' . esc_url( $view_link ) . '"' . $preview_target . '>' . $display_link . "</a></span>\n";
 		$return .= '&lrm;'; // Fix bi-directional text display defect in RTL languages.
 		$return .= '<span id="edit-slug-buttons"><button type="button" class="edit-slug button button-small hide-if-no-js" aria-label="' . __( 'Edit permalink' ) . '">' . __( 'Edit' ) . "</button></span>\n";
