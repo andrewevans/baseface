@@ -589,6 +589,7 @@ function my_product_columns($columns)
         'date'		=>	'Date',
         'thumbnail'	=>	'Thumbnail',
         'sku'	=>	'SKU',
+        'menu_order'	=>	'Menu Order',
     );
 
     return $columns;
@@ -615,6 +616,10 @@ function my_custom_columns($column)
     {
         $medium = get_term((INT) get_field( "medium"));
         echo ($medium && isset($medium->name) ? $medium->name : 'NO MEDIUM');
+    }
+    elseif($column == 'menu_order')
+    {
+        print_r($post->menu_order);
     }
 }
 
